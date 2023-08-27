@@ -18,9 +18,9 @@ struct ContentView: View {
     }
     @State private var sleepAmout = 8.0
     @State private var coffeeAmount = 1
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var showingAlert = false
+    //    @State private var alertTitle = ""
+    //    @State private var alertMessage = ""
+    ////    @State private var showingAlert = false
     
     var body: some View {
         NavigationView{
@@ -32,7 +32,8 @@ struct ContentView: View {
                         Text("When do you want to wake up?")
                             .font(.headline)
                         DatePicker("Wake up at", selection: $wakeUp, displayedComponents: .hourAndMinute)
-                        .labelsHidden()
+                            .labelsHidden()
+                        
                     }
                     Section{
                         Text("How much sleep do you want")
@@ -40,25 +41,46 @@ struct ContentView: View {
                         Stepper("\(sleepAmout.formatted()) hours", value: $sleepAmout, in: 4...12, step: 0.25)
                     }
                     Section{
-                        Text("How much coffee do you drink")
-                            .font(.headline)
-                        Stepper("\(coffeeAmount == 1 ? "1 cup" : "\(coffeeAmount) cups")", value: $coffeeAmount, in: 1...20)
+                        //                        Text("How much coffee do you drink")
+                        //                            .font(.headline)
+                        //                        Stepper("\(coffeeAmount == 1 ? "1 cup" : "\(coffeeAmount) cups")", value: $coffeeAmount, in: 1...20)
+                        Picker("How much coffee do you drink", selection: $coffeeAmount){
+                            ForEach(1..<21){
+                                Text("\($0)")
+                            }
+                        }
+                        .font(.headline.bold())
                     }
+                    Section{
+                        Text("Recommended Bedtime")
+                            .fontWeight(.bold)
+                        Text(calculateBedTime())
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.blue)
+                    }
+                    
                 }
                 .scrollContentBackground(.hidden)
                 .navigationTitle("BetterRest")
-                .toolbar(){
-                    Button("Calculate", action: calculateBedTime)
-                }
-                .alert(alertTitle, isPresented: $showingAlert){
-                    Button("OK"){ }
-                } message: {
-                    Text("\(alertMessage)")
-                }
+                //                .toolbar(){
+                //                    Button("Calculate", action: calculateBedTime)
+                //                }
+                //                .alert(alertTitle, isPresented: $showingAlert){
+                //                    Button("OK"){ }
+                //                } message: {
+                //                    Text("\(alertMessage)")
+                //                }
             }
         }
     }
-    func calculateBedTime() {
+    
+    //  Day 28 - Challenge 3.
+    // "Change the user interface so that it always shows their
+    //  recommended bedtime using a nice and large font. You
+    //  should be able to remove the “Calculate” button entirely.
+    func calculateBedTime() -> String {
+        let bedTime: String
         do {
             let config = MLModelConfiguration()
             let model = try SleepCalculator(configuration: config)
@@ -70,14 +92,15 @@ struct ContentView: View {
             
             let sleepTime = wakeUp - prediction.actualSleep
             
-            alertTitle = "Your ideal bedtime is..."
-            alertMessage = "\(sleepTime.formatted(date: .omitted, time: .shortened))"
+            //            alertTitle = "Your ideal bedtime is..."
+            bedTime = "\(sleepTime.formatted(date: .omitted, time: .shortened))"
         } catch {
             // if something error
-            alertTitle = "Error"
-            alertMessage = "Sorry, there was a problem calculating your bedtime."
+            //            alertTitle = "Error"
+            bedTime = "Sorry, there was a problem calculating your bedtime."
         }
-        showingAlert = true
+        return bedTime
+        //        showingAlert = true
     }
 }
 
